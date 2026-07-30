@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --login-bg: #8b7f8a;
+  --login-accent: #926c72;
+  --login-accent-hover: #7f5c62;
+  --login-muted: #9ca3af;
+  --login-text: #1a1a1a;
+  --font-sans: "Outfit", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  max-width: none;
+  border: none;
+  text-align: initial;
+  display: block;
+}
+
+@keyframes login-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes login-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.login-fade-up {
+  animation: login-fade-up 0.55s ease-out both;
+}
+
+.login-fade-up-delay {
+  animation: login-fade-up 0.55s ease-out 0.12s both;
+}
+
+.login-slide-in {
+  animation: login-slide-in 0.7s ease-out both;
+}
