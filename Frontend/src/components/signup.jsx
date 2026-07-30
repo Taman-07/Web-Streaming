@@ -195,7 +195,7 @@ export default function Signup() {
               to="/login"
               className="text-[#926c72] font-medium ml-1 hover:text-[#7f5c62] transition"
             >
-              Sign In
+              Log In
             </Link>
           </p>
         </div>
