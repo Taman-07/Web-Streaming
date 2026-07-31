@@ -8,7 +8,9 @@
     "dev": "nodemon src/app.js"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "mongoose": "^9.9.0",
     "node": "^26.5.1"
   },
   "devDependencies": {
