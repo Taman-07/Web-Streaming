@@ -3,6 +3,8 @@ const authRouter=express.Router();
 
 const validateSignupData=require("../utils/validation");
 const User=require("../models/user");
+const bcrypt=require("bcrypt");
+const jwt=require("jsonwebtoken");
 
 authRouter.post("/signup", async (req,res)=>{
     const data=req.body;
@@ -34,7 +36,7 @@ authRouter.post("/login", async(req, res)=>{
         const user=await User.findOne({emailId : emailId});
 
         if(!user){
-            throw new Error("Invalid credentials")
+            throw new Error("Invalid credentials");
         }
 
         const isPasswordValid=await user.validatePassword(password);
