@@ -4,10 +4,10 @@ const app = express();
 require('dotenv').config();
 
 
-app.use("/", (req, res)=>{
-    res.send("Hello from the Server");
-});
+const authRouter=require("./routes/auth");
 
+app.use(express.json());
+app.use("/", authRouter);
 
 
 connectDB()
