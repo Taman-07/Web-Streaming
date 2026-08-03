@@ -11,17 +11,20 @@ authRouter.post("/signup", async (req,res)=>{
     try{
         validateSignupData(req);
         const {username,emailId,password,profilePic,bio,dateOfBirth}=req.body;
-
+        const hashedPassword=await bcrypt.hash(password,10);
         const user=new User({
             username,
             emailId,
-            password,
+            password:hashedPassword,
             profilePic,
             bio,
             dateOfBirth,
         });
 
         const savedUser=await user.save();
+
+        const token=await savedUser.getJWT();
+        res.cookie("token",token);
 
         res.json({message: "User Added Successfully 😁", data: savedUser});
     }
@@ -42,6 +45,8 @@ authRouter.post("/login", async(req, res)=>{
         const isPasswordValid=await user.validatePassword(password);
 
         if(isPasswordValid){
+            const token= await user.getJWT();
+            res.cookie("token",token);
             res.send(user);
         }
         else{
@@ -53,8 +58,11 @@ authRouter.post("/login", async(req, res)=>{
     }
 });
 
-authRouter.post("/logout", async(req, res)=>{
-    res.send("Logout successfully❗");
+authRouter.post("/logout",async(req,res)=>{
+    res.cookie("token",null,{
+        expires:new Date(Date.now())
+    });
+    res.send("logout");
 });
 
 
