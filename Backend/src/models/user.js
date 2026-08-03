@@ -4,7 +4,6 @@ const validator=require("validator");
 const userSchema=mongoose.Schema({
     username:{
         type: String,
-        index: true,
         required: true,
         lowercase: true,
         minLength: 5,
