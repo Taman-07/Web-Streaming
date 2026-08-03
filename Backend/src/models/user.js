@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator=require("validator");
-
+const jwt=require("jsonwebtoken");
+const brcypt=require("bcrypt");
 const userSchema=mongoose.Schema({
     username:{
         type: String,
@@ -13,9 +14,10 @@ const userSchema=mongoose.Schema({
         type:String,
         required: true,
         lowercase: true,
+        trim:true,
         unique: true,
         minLength: 5,
-        maxLength: 20,
+        maxLength: 40,
         validate(value){
             if(!validator.isEmail(value)){
                 throw new Error("Please use a valid email address");
@@ -57,6 +59,16 @@ const userSchema=mongoose.Schema({
     timestamps: true,
 });
 
-
+// ek jwt token banu usko cookie mai dall kai bhejun
+userSchema.methods.getJWT=async function(){
+    const user=this;
+    const token=jwt.sign({_id:user.id},process.env.JWT_SecretKey,{expiresIn :"1d"});
+    return token;
+}
+userSchema.methods.validatePassword=async function(password){
+    const user=this;
+    const isPasswordValid=await brcypt.compare(password,user.password);
+    return isPasswordValid;
+}
 const User=mongoose.model("User", userSchema);
 module.exports=User;
