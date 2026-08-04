@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaFacebookF, FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { BASE_URL } from '../utils/constants';
-
-
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const slides = [
   {
     image:
@@ -27,6 +27,7 @@ const inputClass =
   "w-full bg-[#eeeeef] text-[#1a1a1a] placeholder:text-[#a8adb5] rounded-xl px-4 py-3 outline-none border border-transparent focus:bg-white focus:border-[#926c72]/40 focus:ring-2 focus:ring-[#926c72]/12 transition";
 
 export default function Signup() {
+  const navigate=useNavigate();
   const [form, setForm] = useState({
     fullName: "",
     username: "",
@@ -52,9 +53,34 @@ export default function Signup() {
   const nextSlide = () =>
     setSlide((i) => (i === slides.length - 1 ? 0 : i + 1));
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-  };
+  const handleSignup = async (e) => {
+  e.preventDefault();
+
+  if (form.password !== form.confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
+       console.log("handleSignup called");
+  try {
+    const res = await axios.post(
+      BASE_URL + "/signup",
+      {
+        username: form.username,
+        emailId: form.email,
+        password: form.password,
+        confirmPassword:form.confirmPassword
+      },
+      {
+        withCredentials: true,
+      }
+    );
+
+    console.log(res.data);
+    navigate("/body");
+  } catch (err) {
+    console.log(err.response?.data || err.message);
+}
+};
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,#9a8e97_0%,#7d727c_45%,#6a6068_100%)]">

@@ -10,7 +10,10 @@ authRouter.post("/signup", async (req,res)=>{
     const data=req.body;
     try{
         validateSignupData(req);
-        const {username,emailId,password,profilePic,bio,dateOfBirth}=req.body;
+        const {username,emailId,password,confirmPassword,profilePic,bio,dateOfBirth}=req.body;
+         if (password !== confirmPassword) {
+            return res.status(400).send("Passwords do not match");
+        }
         const hashedPassword=await bcrypt.hash(password,10);
         const user=new User({
             username,

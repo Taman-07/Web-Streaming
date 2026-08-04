@@ -4,7 +4,7 @@ import axios from "axios";
 import { FaEye, FaEyeSlash, FaFacebookF, FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { BASE_URL } from "../utils/constants";
-
+import { useNavigate } from "react-router-dom";
 const slides = [
   {
     image:
@@ -25,8 +25,8 @@ const slides = [
 
 export default function Login() {
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("sansarkakkar@07gmail.com");
+  const [password, setPassword] = useState("Sansar@123");
 
   const [showPassword, setShowPassword] = useState(false);
   const [slide, setSlide] = useState(0);
@@ -34,10 +34,9 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const current = slides[slide];
-
+  const navigate=useNavigate();
 
   const handleLogin = async () => {
-
   console.log("Login clicked");
 
   try {
@@ -53,7 +52,7 @@ export default function Login() {
     );
 
     console.log("Response:", res.data);
-
+    navigate("/body");
   } catch (err) {
 
     console.log("Error:", err.response?.data || err.message);
