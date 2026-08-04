@@ -6,6 +6,7 @@ const app = express();
 const cookieParser=require("cookie-parser");
 
 const authRouter=require("./routes/auth");
+const profileRouter=require("./routes/profile");
 
 app.use(
     cors({
@@ -14,9 +15,10 @@ app.use(
 })
 );
 app.use(express.json());
-
+app.use(cookieParser());
 
 app.use("/", authRouter);
+app.use("/", profileRouter);
 
 connectDB()
     .then(()=>{
