@@ -1,45 +1,82 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaFacebookF, FaApple } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { BASE_URL } from '../utils/constants';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+import {
+  FaEye,
+  FaEyeSlash,
+  FaFacebookF,
+  FaApple,
+  FaArrowLeft,
+  FaArrowRight,
+} from "react-icons/fa";
+
+import { FcGoogle } from "react-icons/fc";
+import { BASE_URL } from "../utils/constants";
+
+// ============================================
+// SLIDES
+// ============================================
+
 const slides = [
   {
     image:
-      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200",
-    caption: "Finally, all your favorites in one place.",
+      "https://i.pinimg.com/736x/c2/cd/12/c2cd123596debff14d550f47c8800c76.jpg",
+    title: "Your next story starts here.",
+    description: "Share your ideas, views with everyone.",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200",
-    caption: "Stream what you love, anytime.",
+      "https://i.pinimg.com/736x/b2/ed/39/b2ed398d1e68a9ed6eb1192e81ca6461.jpg",
+    title: "Sit back. Press play.",
+    description:
+      "Your favorite entertainment is always waiting for you.",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=1200",
-    caption: "Movies, shows, and more — ready when you are.",
+      "https://i.pinimg.com/736x/d0/94/33/d094330eb1900f292b7075167abb06d3.jpg",
+    title: "Learn something new everyday.",
+    description:
+      "Explore new worlds and discover something worth watching.",
+  },
+  {
+    image:
+      "https://i.pinimg.com/736x/1c/16/f4/1c16f48dcaf4122b8ca068e412441d8a.jpg",
+    title: "Your Next Story Starts Here",
+    description:
+      "Experience movies and entertainment like never before.",
   },
 ];
 
-const inputClass =
-  "w-full bg-[#eeeeef] text-[#1a1a1a] placeholder:text-[#a8adb5] rounded-xl px-4 py-3 outline-none border border-transparent focus:bg-white focus:border-[#926c72]/40 focus:ring-2 focus:ring-[#926c72]/12 transition";
+// ============================================
+// SIGNUP COMPONENT
+// ============================================
 
 export default function Signup() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
+
+  // ==========================================
+  // FORM STATE
+  // ==========================================
+
   const [form, setForm] = useState({
-    fullName: "",
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
   const [slide, setSlide] = useState(0);
+  const [error, setError] = useState("");
 
   const current = slides[slide];
+
+  // ==========================================
+  // HANDLE INPUT CHANGE
+  // ==========================================
 
   const handleChange = (e) => {
     setForm({
@@ -48,236 +85,771 @@ export default function Signup() {
     });
   };
 
-  const prevSlide = () =>
-    setSlide((i) => (i === 0 ? slides.length - 1 : i - 1));
-  const nextSlide = () =>
-    setSlide((i) => (i === slides.length - 1 ? 0 : i + 1));
+  // ==========================================
+  // SLIDER
+  // ==========================================
+
+  const prevSlide = () => {
+    setSlide((index) =>
+      index === 0 ? slides.length - 1 : index - 1
+    );
+  };
+
+  const nextSlide = () => {
+    setSlide((index) =>
+      index === slides.length - 1 ? 0 : index + 1
+    );
+  };
+
+  // ==========================================
+  // SIGNUP API
+  // ==========================================
 
   const handleSignup = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (form.password !== form.confirmPassword) {
-    setError("Passwords do not match");
-    return;
-  }
-       console.log("handleSignup called");
-  try {
-    const res = await axios.post(
-      BASE_URL + "/signup",
-      {
-        username: form.username,
-        emailId: form.email,
-        password: form.password,
-        confirmPassword:form.confirmPassword
-      },
-      {
-        withCredentials: true,
-      }
-    );
+    setError("");
 
-    console.log(res.data);
-    navigate("/body");
-  } catch (err) {
-    console.log(err.response?.data || err.message);
-}
-};
+    // Check password
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      console.log("Signup clicked");
+
+      const res = await axios.post(
+        BASE_URL + "/signup",
+        {
+          username: form.username,
+          emailId: form.email,
+          password: form.password,
+          confirmPassword: form.confirmPassword,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("Signup response:", res.data);
+
+      // After successful signup
+      navigate("/body");
+    } catch (err) {
+      console.log(
+        "Signup Error:",
+        err.response?.data || err.message
+      );
+
+      setError(
+        err.response?.data ||
+          "Unable to create your account."
+      );
+    }
+  };
+
+  // ==========================================
+  // RETURN
+  // ==========================================
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,#9a8e97_0%,#7d727c_45%,#6a6068_100%)]">
-      <div className="login-fade-up w-full max-w-[960px] min-h-[580px] bg-white rounded-[28px] shadow-[0_25px_60px_-20px_rgba(0,0,0,0.35)] flex overflow-hidden">
-        {/* LEFT — Form */}
-        <div className="w-full md:w-1/2 px-7 sm:px-10 py-8 flex flex-col justify-center">
-          <div className="text-center mb-6">
-            <h1 className="text-[1.85rem] sm:text-[2rem] font-bold text-[#1a1a1a] tracking-tight leading-none">
-              Create Account
+    <div
+      className="
+        min-h-screen
+        bg-[#070b0f]
+        text-white
+        flex
+        items-center
+        justify-center
+        px-5
+        py-8
+      "
+    >
+      {/* ====================================== */}
+      {/* MAIN CARD */}
+      {/* ====================================== */}
+
+      <div
+        className="
+          w-full
+          max-w-[1100px]
+          min-h-[650px]
+          bg-[#0b1015]
+          border
+          border-[#1c252e]
+          rounded-3xl
+          overflow-hidden
+          shadow-2xl
+          flex
+        "
+      >
+        {/* ==================================== */}
+        {/* LEFT - SIGNUP FORM */}
+        {/* ==================================== */}
+
+        <div
+          className="
+            w-full
+            lg:w-[48%]
+            px-8
+            sm:px-12
+            py-10
+            flex
+            flex-col
+            justify-center
+          "
+        >
+          {/* ================================== */}
+          {/* TOP TEXT */}
+          {/* ================================== */}
+
+          <div className="mb-8">
+            <p
+              className="
+                text-[#ff0033]
+                text-xs
+                uppercase
+                tracking-[0.25em]
+                font-semibold
+                mb-3
+              "
+            >
+              Join the experience
+            </p>
+
+            <h1
+              className="
+                text-4xl
+                font-bold
+                tracking-tight
+              "
+            >
+              Create your account.
             </h1>
-            <p className="mt-2.5 text-[0.875rem] text-[#9ca3af] font-medium">
-              Start streaming with your 30 days free trial
+
+            <p
+              className="
+                text-[#89929c]
+                mt-3
+                leading-relaxed
+              "
+            >
+              Create an account and start exploring
+              movies, shows, and creators.
             </p>
           </div>
 
-          <form onSubmit={handleSignup} className="space-y-3">
-            <input
-              type="text"
-              name="fullName"
-              placeholder="Full Name"
-              value={form.fullName}
-              onChange={handleChange}
-              className={inputClass}
-              required
-            />
+          {/* ================================== */}
+          {/* FORM */}
+          {/* ================================== */}
 
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={form.username}
-              onChange={handleChange}
-              className={inputClass}
-              required
-            />
+          <form
+            onSubmit={handleSignup}
+            className="space-y-4"
+          >
+            {/* ================================= */}
+            {/* USERNAME */}
+            {/* ================================= */}
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              className={inputClass}
-              required
-            />
+            <div>
+              <label
+                className="
+                  block
+                  text-sm
+                  text-[#aeb6bf]
+                  mb-2
+                "
+              >
+                Username
+              </label>
 
-            <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={form.password}
+                type="text"
+                name="username"
+                placeholder="Choose a username"
+                value={form.username}
                 onChange={handleChange}
-                className={`${inputClass} pr-12`}
+                className="
+                  w-full
+                  bg-[#11171d]
+                  border
+                  border-[#27313a]
+                  rounded-xl
+                  px-4
+                  py-3.5
+                  text-white
+                  placeholder-[#626c76]
+                  outline-none
+                  transition
+                  duration-200
+                  focus:border-[#ff0033]
+                  focus:ring-1
+                  focus:ring-[#ff0033]
+                "
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#b0b5bd] hover:text-[#6b7280] transition"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? (
-                  <FaEyeSlash className="w-[18px] h-[18px]" />
-                ) : (
-                  <FaEye className="w-[18px] h-[18px]" />
-                )}
-              </button>
             </div>
 
-            <div className="relative">
+            {/* ================================= */}
+            {/* EMAIL */}
+            {/* ================================= */}
+
+            <div>
+              <label
+                className="
+                  block
+                  text-sm
+                  text-[#aeb6bf]
+                  mb-2
+                "
+              >
+                Email
+              </label>
+
               <input
-                type={showConfirm ? "text" : "password"}
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={form.confirmPassword}
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={form.email}
                 onChange={handleChange}
-                className={`${inputClass} pr-12`}
+                className="
+                  w-full
+                  bg-[#11171d]
+                  border
+                  border-[#27313a]
+                  rounded-xl
+                  px-4
+                  py-3.5
+                  text-white
+                  placeholder-[#626c76]
+                  outline-none
+                  transition
+                  duration-200
+                  focus:border-[#ff0033]
+                  focus:ring-1
+                  focus:ring-[#ff0033]
+                "
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowConfirm((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#b0b5bd] hover:text-[#6b7280] transition"
-                aria-label={
-                  showConfirm ? "Hide confirm password" : "Show confirm password"
-                }
-              >
-                {showConfirm ? (
-                  <FaEyeSlash className="w-[18px] h-[18px]" />
-                ) : (
-                  <FaEye className="w-[18px] h-[18px]" />
-                )}
-              </button>
             </div>
+
+            {/* ================================= */}
+            {/* PASSWORD */}
+            {/* ================================= */}
+
+            <div>
+              <label
+                className="
+                  block
+                  text-sm
+                  text-[#aeb6bf]
+                  mb-2
+                "
+              >
+                Password
+              </label>
+
+              <div className="relative">
+                <input
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
+                  name="password"
+                  placeholder="Create a password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="
+                    w-full
+                    bg-[#11171d]
+                    border
+                    border-[#27313a]
+                    rounded-xl
+                    px-4
+                    py-3.5
+                    pr-12
+                    text-white
+                    placeholder-[#626c76]
+                    outline-none
+                    transition
+                    duration-200
+                    focus:border-[#ff0033]
+                    focus:ring-1
+                    focus:ring-[#ff0033]
+                  "
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                  className="
+                    absolute
+                    right-4
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#7d8791]
+                    hover:text-white
+                    transition
+                  "
+                >
+                  {showPassword ? (
+                    <FaEyeSlash />
+                  ) : (
+                    <FaEye />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* ================================= */}
+            {/* CONFIRM PASSWORD */}
+            {/* ================================= */}
+
+            <div>
+              <label
+                className="
+                  block
+                  text-sm
+                  text-[#aeb6bf]
+                  mb-2
+                "
+              >
+                Confirm Password
+              </label>
+
+              <div className="relative">
+                <input
+                  type={
+                    showConfirm
+                      ? "text"
+                      : "password"
+                  }
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  className="
+                    w-full
+                    bg-[#11171d]
+                    border
+                    border-[#27313a]
+                    rounded-xl
+                    px-4
+                    py-3.5
+                    pr-12
+                    text-white
+                    placeholder-[#626c76]
+                    outline-none
+                    transition
+                    duration-200
+                    focus:border-[#ff0033]
+                    focus:ring-1
+                    focus:ring-[#ff0033]
+                  "
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirm(!showConfirm)
+                  }
+                  className="
+                    absolute
+                    right-4
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#7d8791]
+                    hover:text-white
+                    transition
+                  "
+                >
+                  {showConfirm ? (
+                    <FaEyeSlash />
+                  ) : (
+                    <FaEye />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* ================================= */}
+            {/* ERROR */}
+            {/* ================================= */}
+
+            {error && (
+              <div
+                className="
+                  bg-red-500/10
+                  border
+                  border-red-500/20
+                  text-red-400
+                  text-sm
+                  rounded-xl
+                  px-4
+                  py-3
+                "
+              >
+                {error}
+              </div>
+            )}
+
+            {/* ================================= */}
+            {/* CREATE ACCOUNT BUTTON */}
+            {/* ================================= */}
 
             <button
               type="submit"
-              className="w-full mt-2 bg-[#926c72] hover:bg-[#7f5c62] active:scale-[0.99] transition-all duration-200 rounded-xl py-3.5 text-white font-semibold tracking-wide shadow-[0_12px_24px_-6px_rgba(146,108,114,0.7)]"
+              className="
+                w-full
+                bg-[#ff0033]
+                hover:bg-[#e6002e]
+                text-white
+                font-semibold
+                rounded-xl
+                py-3.5
+                transition
+                duration-200
+                shadow-lg
+                shadow-red-500/10
+              "
             >
               Create Account
             </button>
           </form>
 
-          <div className="flex items-center my-5">
-            <div className="flex-1 border-t border-[#e5e5e8]" />
-            <span className="mx-3 text-[#9ca3af] text-[0.8rem] whitespace-nowrap">
-              Or continue with
+          {/* ================================== */}
+          {/* DIVIDER */}
+          {/* ================================== */}
+
+          <div
+            className="
+              flex
+              items-center
+              gap-4
+              my-6
+            "
+          >
+            <div
+              className="
+                h-px
+                bg-[#242c34]
+                flex-1
+              "
+            />
+
+            <span
+              className="
+                text-xs
+                text-[#69737d]
+                whitespace-nowrap
+              "
+            >
+              OR CONTINUE WITH
             </span>
-            <div className="flex-1 border-t border-[#e5e5e8]" />
+
+            <div
+              className="
+                h-px
+                bg-[#242c34]
+                flex-1
+              "
+            />
           </div>
 
-          <div className="flex justify-center gap-4">
+          {/* ================================== */}
+          {/* SOCIAL BUTTONS */}
+          {/* ================================== */}
+
+          <div
+            className="
+              grid
+              grid-cols-3
+              gap-3
+            "
+          >
+            {/* GOOGLE */}
+
             <button
               type="button"
-              className="w-12 h-12 rounded-xl bg-white border border-[#ececef] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(0,0,0,0.1)] transition-all duration-200"
-              aria-label="Continue with Google"
+              className="
+                h-11
+                bg-[#11171d]
+                border
+                border-[#27313a]
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                hover:bg-[#171e25]
+                hover:border-[#38434d]
+                transition
+              "
             >
-              <FcGoogle className="w-5 h-5" />
+              <FcGoogle className="text-xl" />
             </button>
+
+            {/* FACEBOOK */}
+
             <button
               type="button"
-              className="w-12 h-12 rounded-xl bg-white border border-[#ececef] shadow-[0_4px_14px_rgba(0,0,0,0.1)] flex items-center justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(0,0,0,0.14)] transition-all duration-200"
-              aria-label="Continue with Apple"
+              className="
+                h-11
+                bg-[#11171d]
+                border
+                border-[#27313a]
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                hover:bg-[#171e25]
+                hover:border-[#38434d]
+                transition
+              "
             >
-              <FaApple className="w-5 h-5 text-[#1a1a1a]" />
+              <FaFacebookF className="text-[#1877f2]" />
             </button>
+
+            {/* APPLE */}
+
             <button
               type="button"
-              className="w-12 h-12 rounded-xl bg-white border border-[#ececef] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(0,0,0,0.1)] transition-all duration-200"
-              aria-label="Continue with Facebook"
+              className="
+                h-11
+                bg-[#11171d]
+                border
+                border-[#27313a]
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                hover:bg-[#171e25]
+                hover:border-[#38434d]
+                transition
+              "
             >
-              <FaFacebookF className="w-[18px] h-[18px] text-[#1877F2]" />
+              <FaApple className="text-white text-lg" />
             </button>
           </div>
 
-          <p className="login-fade-up-delay text-center text-sm text-[#9ca3af] mt-6">
+          {/* ================================== */}
+          {/* LOGIN LINK */}
+          {/* ================================== */}
+
+          <p
+            className="
+              text-center
+              text-sm
+              text-[#747e88]
+              mt-7
+            "
+          >
             Already have an account?
+
             <Link
               to="/login"
-              className="text-[#926c72] font-medium ml-1 hover:text-[#7f5c62] transition"
+              className="
+                text-white
+                font-semibold
+                ml-1
+                hover:text-[#ff0033]
+                transition
+              "
             >
               Log In
             </Link>
           </p>
         </div>
 
-        {/* RIGHT — Image panel */}
-        <div className="hidden md:block w-1/2 p-4 pl-2">
-          <div className="login-slide-in relative h-full min-h-[540px] rounded-[1.75rem] overflow-hidden">
+        {/* ==================================== */}
+        {/* RIGHT - CINEMATIC IMAGE */}
+        {/* ==================================== */}
+
+        <div
+          className="
+            hidden
+            lg:block
+            w-[52%]
+            p-4
+          "
+        >
+          <div
+            className="
+              relative
+              h-full
+              rounded-2xl
+              overflow-hidden
+            "
+          >
+            {/* IMAGE */}
+
             <img
               key={current.image}
               src={current.image}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover animate-[login-slide-in_0.55s_ease-out]"
+              alt="Entertainment"
+              className="
+                absolute
+                inset-0
+                w-full
+                h-full
+                object-cover
+                transition-all
+                duration-700
+              "
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
 
-            <p className="absolute bottom-16 left-8 right-14 text-white text-[1.15rem] font-medium leading-snug tracking-wide">
-              {current.caption}
-            </p>
+            {/* DARK OVERLAY */}
 
-            <div className="absolute bottom-6 left-6 flex gap-2.5">
-              <button
-                type="button"
-                onClick={prevSlide}
-                className="w-9 h-9 rounded-full border border-white/70 text-white flex items-center justify-center hover:bg-white/20 transition"
-                aria-label="Previous slide"
+            <div
+              className="
+                absolute
+                inset-0
+                bg-gradient-to-t
+                from-black
+                via-black/40
+                to-black/10
+              "
+            />
+
+            {/* IMAGE CONTENT */}
+
+            <div
+              className="
+                absolute
+                bottom-24
+                left-8
+                right-8
+              "
+            >
+              <p
+                className="
+                  text-[#ff0033]
+                  uppercase
+                  text-xs
+                  font-bold
+                  tracking-widest
+                  mb-3
+                "
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="w-4 h-4"
-                >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={nextSlide}
-                className="w-9 h-9 rounded-full border border-white/70 text-white flex items-center justify-center hover:bg-white/20 transition"
-                aria-label="Next slide"
+                Discover
+              </p>
+
+              <h2
+                className="
+                  text-3xl
+                  xl:text-4xl
+                  font-bold
+                  leading-tight
+                  max-w-[500px]
+                "
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="w-4 h-4"
+                {current.title}
+              </h2>
+
+              <p
+                className="
+                  text-[#c3c8cd]
+                  mt-3
+                  max-w-[450px]
+                  leading-relaxed
+                "
+              >
+                {current.description}
+              </p>
+            </div>
+
+            {/* SLIDER CONTROLS */}
+
+            <div
+              className="
+                absolute
+                bottom-8
+                left-8
+                right-8
+                flex
+                items-center
+                justify-between
+              "
+            >
+              {/* DOTS */}
+
+              <div
+                className="
+                  flex
+                  gap-2
+                  items-center
+                "
+              >
+                {slides.map((_, index) => (
+                  <button
+                    type="button"
+                    key={index}
+                    onClick={() => setSlide(index)}
+                    className={`
+                      h-1.5
+                      rounded-full
+                      transition-all
+                      duration-300
+                      ${
+                        slide === index
+                          ? "w-8 bg-[#ff0033]"
+                          : "w-2 bg-white/40"
+                      }
+                    `}
+                  />
+                ))}
+              </div>
+
+              {/* ARROWS */}
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={prevSlide}
+                  className="
+                    w-9
+                    h-9
+                    rounded-full
+                    border
+                    border-white/20
+                    bg-black/30
+                    backdrop-blur-sm
+                    flex
+                    items-center
+                    justify-center
+                    hover:bg-white/10
+                    transition
+                  "
                 >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                  <FaArrowLeft className="text-xs" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextSlide}
+                  className="
+                    w-9
+                    h-9
+                    rounded-full
+                    border
+                    border-white/20
+                    bg-black/30
+                    backdrop-blur-sm
+                    flex
+                    items-center
+                    justify-center
+                    hover:bg-white/10
+                    transition
+                  "
+                >
+                  <FaArrowRight className="text-xs" />
+                </button>
+              </div>
             </div>
           </div>
         </div>

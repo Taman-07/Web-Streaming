@@ -1,43 +1,83 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { FaEye, FaEyeSlash, FaFacebookF, FaApple } from "react-icons/fa";
+
+import {
+  FaEye,
+  FaEyeSlash,
+  FaFacebookF,
+  FaApple,
+  FaArrowLeft,
+  FaArrowRight,
+} from "react-icons/fa";
+
 import { FcGoogle } from "react-icons/fc";
 import { BASE_URL } from "../utils/constants";
-import { useNavigate } from "react-router-dom";
+
 const slides = [
   {
     image:
-      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200",
-    caption: "Finally, all your favorites in one place.",
+      "https://i.pinimg.com/736x/c2/cd/12/c2cd123596debff14d550f47c8800c76.jpg",
+
+    title: "Your next story starts here.",
+
+    description:
+      "Share your ideas, views with everyone.",
   },
+
   {
     image:
-      "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200",
-    caption: "Stream what you love, anytime.",
+      "https://i.pinimg.com/736x/b2/ed/39/b2ed398d1e68a9ed6eb1192e81ca6461.jpg",
+
+    title: "Sit back. Press play.",
+
+    description:
+      "Your favorite entertainment is always waiting for you.",
   },
+
   {
     image:
-      "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=1200",
-    caption: "Movies, shows, and more — ready when you are.",
+      "https://i.pinimg.com/736x/d0/94/33/d094330eb1900f292b7075167abb06d3.jpg",
+
+    title: "Learn something new everyday.",
+
+    description:
+      "Explore new worlds and discover something worth watching.",
+  },
+
+  {
+    image:
+      "https://i.pinimg.com/736x/1c/16/f4/1c16f48dcaf4122b8ca068e412441d8a.jpg",
+
+    title: "Your Next Story Starts Here",
+
+    description:
+      "Experience movies and entertainment like never before.",
   },
 ];
 
+
 export default function Login() {
 
-  const [email, setEmail] = useState("sansarkakkar@07gmail.com");
-  const [password, setPassword] = useState("Sansar@123");
+  const [email, setEmail] = useState("");
+
+  const [password, setPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+
   const [slide, setSlide] = useState(0);
 
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+
   const current = slides[slide];
-  const navigate=useNavigate();
+
 
   const handleLogin = async () => {
   console.log("Login clicked");
+
+  setError("");
 
   try {
     const res = await axios.post(
@@ -52,229 +92,782 @@ export default function Login() {
     );
 
     console.log("Response:", res.data);
-    navigate("/body");
-  } catch (err) {
 
-    console.log("Error:", err.response?.data || err.message);
+    // Get user data
+    const user = res.data.user || res.data;
+
+    // username is the first name
+    if (user.username) {
+      localStorage.setItem("username", user.username);
+    }
+
+    // Save complete user data
+    localStorage.setItem(
+      "user",
+      JSON.stringify(user)
+    );
+
+    // Go to homepage
+    navigate("/body");
+
+  } catch (err) {
+    console.log(
+      "Error:",
+      err.response?.data || err.message
+    );
 
     setError(
-      err?.response?.data || "Something went Wrong !!"
+      err?.response?.data ||
+        "Invalid email or password."
     );
   }
 };
 
   const handleSubmit = (e) => {
+
     e.preventDefault();
+
     handleLogin();
   };
 
 
-  const prevSlide = () =>
-    setSlide((i) =>
-      i === 0 ? slides.length - 1 : i - 1
+  const prevSlide = () => {
+
+    setSlide((index) =>
+      index === 0
+        ? slides.length - 1
+        : index - 1
     );
+  };
 
 
-  const nextSlide = () =>
-    setSlide((i) =>
-      i === slides.length - 1 ? 0 : i + 1
+  const nextSlide = () => {
+
+    setSlide((index) =>
+      index === slides.length - 1
+        ? 0
+        : index + 1
     );
+  };
 
 
   return (
 
-    <div className="min-h-screen w-full flex items-center justify-center p-4">
+    <div
+      className="
+        min-h-screen
+        bg-[#070b0f]
+        text-white
+        flex
+        items-center
+        justify-center
+        px-5
+        py-8
+      "
+    >
 
-      <div className="w-full max-w-[920px] bg-white rounded-[28px] shadow-xl flex overflow-hidden">
+
+      <div
+        className="
+          w-full
+          max-w-[1100px]
+          min-h-[650px]
+          bg-[#0b1015]
+          border
+          border-[#1c252e]
+          rounded-3xl
+          overflow-hidden
+          shadow-2xl
+          flex
+        "
+      >
 
 
-        {/* LEFT FORM */}
+        <div
+          className="
+            w-full
+            lg:w-[48%]
+            px-8
+            sm:px-12
+            py-10
+            flex
+            flex-col
+            justify-center
+          "
+        >
 
-        <div className="w-full md:w-1/2 px-8 py-10">
+
+          {/* ===================================== */}
+          {/* SIMPLE TOP TEXT */}
+          {/* ===================================== */}
+
+          <div className="mb-10">
+
+            <p
+              className="
+                text-[#ff0033]
+                text-xs
+                uppercase
+                tracking-[0.25em]
+                font-semibold
+                mb-3
+              "
+            >
+              Welcome back
+            </p>
 
 
-          <div className="text-center mb-9">
-
-            <h1 className="text-3xl font-bold">
-              Hello Again!
+            <h1
+              className="
+                text-4xl
+                font-bold
+                tracking-tight
+              "
+            >
+              Log in to continue.
             </h1>
 
-            <p className="text-gray-400 mt-3">
-              Welcome back to your streaming library
+
+            <p
+              className="
+                text-[#89929c]
+                mt-3
+                leading-relaxed
+              "
+            >
+              Continue watching your favorite
+              movies, shows, and creators.
             </p>
 
           </div>
 
 
+          {/* ===================================== */}
+          {/* FORM */}
+          {/* ===================================== */}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-
-            <input
-
-              type="email"
-
-              placeholder="Email"
-
-              value={email}
-
-              onChange={(e)=>setEmail(e.target.value)}
-
-              className="w-full bg-gray-100 rounded-xl px-4 py-3"
-
-              required
-
-            />
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
 
 
+            {/* ================================= */}
+            {/* EMAIL */}
+            {/* ================================= */}
 
-            <div className="relative">
+            <div>
+
+              <label
+                className="
+                  block
+                  text-sm
+                  text-[#aeb6bf]
+                  mb-2
+                "
+              >
+                Email
+              </label>
+
 
               <input
-
-                type={showPassword ? "text":"password"}
-
-                placeholder="Password"
-
-                value={password}
-
-                onChange={(e)=>setPassword(e.target.value)}
-
-                className="w-full bg-gray-100 rounded-xl px-4 py-3 pr-12"
-
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+                className="
+                  w-full
+                  bg-[#11171d]
+                  border
+                  border-[#27313a]
+                  rounded-xl
+                  px-4
+                  py-3.5
+                  text-white
+                  placeholder-[#626c76]
+                  outline-none
+                  transition
+                  duration-200
+                  focus:border-[#ff0033]
+                  focus:ring-1
+                  focus:ring-[#ff0033]
+                "
                 required
-
               />
-
-
-
-              <button
-
-                type="button"
-
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
-
-                className="absolute right-4 top-3"
-
-              >
-
-                {
-                  showPassword
-                  ?
-                  <FaEyeSlash/>
-                  :
-                  <FaEye/>
-                }
-
-              </button>
-
 
             </div>
 
 
+            {/* ================================= */}
+            {/* PASSWORD */}
+            {/* ================================= */}
 
-            {
-              error &&
+            <div>
 
-              <p className="text-red-500 text-sm text-center">
+              <div
+                className="
+                  flex
+                  justify-between
+                  mb-2
+                "
+              >
+
+                <label
+                  className="
+                    text-sm
+                    text-[#aeb6bf]
+                  "
+                >
+                  Password
+                </label>
+
+
+                <button
+                  type="button"
+                  className="
+                    text-xs
+                    text-[#ff3b5c]
+                    hover:text-[#ff0033]
+                    transition
+                  "
+                >
+                  Forgot password?
+                </button>
+
+              </div>
+
+
+              <div className="relative">
+
+                <input
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
+                  className="
+                    w-full
+                    bg-[#11171d]
+                    border
+                    border-[#27313a]
+                    rounded-xl
+                    px-4
+                    py-3.5
+                    pr-12
+                    text-white
+                    placeholder-[#626c76]
+                    outline-none
+                    transition
+                    duration-200
+                    focus:border-[#ff0033]
+                    focus:ring-1
+                    focus:ring-[#ff0033]
+                  "
+                  required
+                />
+
+
+                {/* EYE BUTTON */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(
+                      !showPassword
+                    )
+                  }
+                  className="
+                    absolute
+                    right-4
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#7d8791]
+                    hover:text-white
+                    transition
+                  "
+                >
+
+                  {showPassword ? (
+                    <FaEyeSlash />
+                  ) : (
+                    <FaEye />
+                  )}
+
+                </button>
+
+              </div>
+
+            </div>
+
+
+            {/* ================================= */}
+            {/* ERROR */}
+            {/* ================================= */}
+
+            {error && (
+
+              <div
+                className="
+                  bg-red-500/10
+                  border
+                  border-red-500/20
+                  text-red-400
+                  text-sm
+                  rounded-xl
+                  px-4
+                  py-3
+                "
+              >
                 {error}
-              </p>
+              </div>
 
-            }
+            )}
 
 
+            {/* ================================= */}
+            {/* LOGIN BUTTON */}
+            {/* ================================= */}
 
-            <button type="submit" className="w-full bg-[#926c72] text-white rounded-xl py-3">
+            <button
+              type="submit"
+              className="
+                w-full
+                bg-[#ff0033]
+                hover:bg-[#e6002e]
+                text-white
+                font-semibold
+                rounded-xl
+                py-3.5
+                transition
+                duration-200
+                shadow-lg
+                shadow-red-500/10
+              "
+            >
               Log In
             </button>
+
           </form>
 
 
+          {/* ===================================== */}
+          {/* DIVIDER */}
+          {/* ===================================== */}
 
-          <p className="text-center mt-8 text-gray-400">
+          <div
+            className="
+              flex
+              items-center
+              gap-4
+              my-7
+            "
+          >
+
+            <div
+              className="
+                h-px
+                bg-[#242c34]
+                flex-1
+              "
+            />
+
+            <span
+              className="
+                text-xs
+                text-[#69737d]
+                whitespace-nowrap
+              "
+            >
+              OR CONTINUE WITH
+            </span>
+
+            <div
+              className="
+                h-px
+                bg-[#242c34]
+                flex-1
+              "
+            />
+
+          </div>
+
+
+          {/* ===================================== */}
+          {/* SOCIAL BUTTONS */}
+          {/* ===================================== */}
+
+          <div
+            className="
+              grid
+              grid-cols-3
+              gap-3
+            "
+          >
+
+            {/* GOOGLE */}
+
+            <button
+              type="button"
+              className="
+                h-11
+                bg-[#11171d]
+                border
+                border-[#27313a]
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                hover:bg-[#171e25]
+                hover:border-[#38434d]
+                transition
+              "
+            >
+              <FcGoogle className="text-xl" />
+            </button>
+
+
+            {/* FACEBOOK */}
+
+            <button
+              type="button"
+              className="
+                h-11
+                bg-[#11171d]
+                border
+                border-[#27313a]
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                hover:bg-[#171e25]
+                hover:border-[#38434d]
+                transition
+              "
+            >
+              <FaFacebookF
+                className="text-[#1877f2]"
+              />
+            </button>
+
+
+            {/* APPLE */}
+
+            <button
+              type="button"
+              className="
+                h-11
+                bg-[#11171d]
+                border
+                border-[#27313a]
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                hover:bg-[#171e25]
+                hover:border-[#38434d]
+                transition
+              "
+            >
+              <FaApple className="text-white text-lg" />
+            </button>
+
+          </div>
+
+
+          {/* ===================================== */}
+          {/* SIGN UP */}
+          {/* ===================================== */}
+
+          <p
+            className="
+              text-center
+              text-sm
+              text-[#747e88]
+              mt-8
+            "
+          >
 
             Don't have an account?
 
             <Link
               to="/signup"
-              className="text-[#926c72] ml-1"
+              className="
+                text-white
+                font-semibold
+                ml-1
+                hover:text-[#ff0033]
+                transition
+              "
             >
               Sign Up
             </Link>
 
           </p>
 
-
-
         </div>
 
 
+        {/* ========================================= */}
+        {/* RIGHT CINEMATIC SECTION */}
+        {/* ========================================= */}
+
+        <div
+          className="
+            hidden
+            lg:block
+            w-[52%]
+            p-4
+          "
+        >
+
+          <div
+            className="
+              relative
+              h-full
+              rounded-2xl
+              overflow-hidden
+            "
+          >
 
 
-
-        {/* RIGHT IMAGE */}
-
-
-        <div className="hidden md:block w-1/2 p-4">
-
-
-          <div className="relative h-full rounded-3xl overflow-hidden">
-
+            {/* ================================= */}
+            {/* IMAGE */}
+            {/* ================================= */}
 
             <img
-
+              key={current.image}
               src={current.image}
-
-              className="w-full h-full object-cover"
-
+              alt="Cinema"
+              className="
+                absolute
+                inset-0
+                w-full
+                h-full
+                object-cover
+                transition-all
+                duration-700
+              "
             />
 
 
+            {/* ================================= */}
+            {/* DARK OVERLAY */}
+            {/* ================================= */}
 
-            <div className="absolute bottom-10 left-8 text-white text-xl">
+            <div
+              className="
+                absolute
+                inset-0
+                bg-gradient-to-t
+                from-black
+                via-black/40
+                to-black/10
+              "
+            />
 
-              {current.caption}
+
+            {/* ================================= */}
+            {/* FEATURED TEXT */}
+            {/* ================================= */}
+
+            <div
+              className="
+                absolute
+                top-8
+                left-8
+              "
+            >
+
+              <span
+                className="
+                  bg-black/40
+                  backdrop-blur-md
+                  border
+                  border-white/10
+                  px-4
+                  py-2
+                  rounded-full
+                  text-xs
+                  text-white
+                "
+              >
+              </span>
 
             </div>
 
 
+            {/* ================================= */}
+            {/* IMAGE CONTENT */}
+            {/* ================================= */}
 
-            <div className="absolute bottom-5 left-5 flex gap-3">
+            <div
+              className="
+                absolute
+                bottom-24
+                left-8
+                right-8
+              "
+            >
 
-
-              <button
-                onClick={prevSlide}
-                className="border rounded-full px-3 py-1 text-white"
+              <p
+                className="
+                  text-[#ff0033]
+                  uppercase
+                  text-xs
+                  font-bold
+                  tracking-widest
+                  mb-3
+                "
               >
-                ←
-              </button>
+              </p>
 
 
-
-              <button
-                onClick={nextSlide}
-                className="border rounded-full px-3 py-1 text-white"
+              <h2
+                className="
+                  text-3xl
+                  xl:text-4xl
+                  font-bold
+                  leading-tight
+                  max-w-[500px]
+                "
               >
-                →
-              </button>
+                {current.title}
+              </h2>
 
+
+              <p
+                className="
+                  text-[#c3c8cd]
+                  mt-3
+                  max-w-[450px]
+                  leading-relaxed
+                "
+              >
+                {current.description}
+              </p>
 
             </div>
 
+
+            {/* ================================= */}
+            {/* SLIDER CONTROLS */}
+            {/* ================================= */}
+
+            <div
+              className="
+                absolute
+                bottom-8
+                left-8
+                right-8
+                flex
+                items-center
+                justify-between
+              "
+            >
+
+
+              {/* DOTS */}
+
+              <div
+                className="
+                  flex
+                  gap-2
+                  items-center
+                "
+              >
+
+                {slides.map((_, index) => (
+
+                  <button
+                    key={index}
+                    onClick={() =>
+                      setSlide(index)
+                    }
+                    className={`
+                      h-1.5
+                      rounded-full
+                      transition-all
+                      duration-300
+                      ${
+                        slide === index
+                          ? "w-8 bg-[#ff0033]"
+                          : "w-2 bg-white/40"
+                      }
+                    `}
+                  />
+
+                ))}
+
+              </div>
+
+
+              {/* ARROWS */}
+
+              <div
+                className="
+                  flex
+                  gap-2
+                "
+              >
+
+                <button
+                  onClick={prevSlide}
+                  className="
+                    w-9
+                    h-9
+                    rounded-full
+                    border
+                    border-white/20
+                    bg-black/30
+                    backdrop-blur-sm
+                    flex
+                    items-center
+                    justify-center
+                    hover:bg-white/10
+                    transition
+                  "
+                >
+                  <FaArrowLeft className="text-xs" />
+                </button>
+
+
+                <button
+                  onClick={nextSlide}
+                  className="
+                    w-9
+                    h-9
+                    rounded-full
+                    border
+                    border-white/20
+                    bg-black/30
+                    backdrop-blur-sm
+                    flex
+                    items-center
+                    justify-center
+                    hover:bg-white/10
+                    transition
+                  "
+                >
+                  <FaArrowRight className="text-xs" />
+                </button>
+
+              </div>
+
+            </div>
 
           </div>
 
-
         </div>
-
 
       </div>
 
-
     </div>
-
   );
-
 }
