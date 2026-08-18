@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -15,7 +15,7 @@ import { FcGoogle } from "react-icons/fc";
 import { BASE_URL } from "../utils/constants";
 
 // ============================================
-// SLIDES
+// SIGNUP SLIDES
 // ============================================
 
 const slides = [
@@ -25,6 +25,7 @@ const slides = [
     title: "Your next story starts here.",
     description: "Share your ideas, views with everyone.",
   },
+
   {
     image:
       "https://i.pinimg.com/736x/b2/ed/39/b2ed398d1e68a9ed6eb1192e81ca6461.jpg",
@@ -32,6 +33,7 @@ const slides = [
     description:
       "Your favorite entertainment is always waiting for you.",
   },
+
   {
     image:
       "https://i.pinimg.com/736x/d0/94/33/d094330eb1900f292b7075167abb06d3.jpg",
@@ -39,6 +41,7 @@ const slides = [
     description:
       "Explore new worlds and discover something worth watching.",
   },
+
   {
     image:
       "https://i.pinimg.com/736x/1c/16/f4/1c16f48dcaf4122b8ca068e412441d8a.jpg",
@@ -61,7 +64,7 @@ export default function Signup() {
 
   const [form, setForm] = useState({
     username: "",
-    email: "",
+    emailId: "",
     password: "",
     confirmPassword: "",
   });
@@ -75,6 +78,20 @@ export default function Signup() {
   const current = slides[slide];
 
   // ==========================================
+  // AUTO IMAGE SLIDER - 0.5 SECOND
+  // ==========================================
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlide((index) =>
+        index === slides.length - 1 ? 0 : index + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // ==========================================
   // HANDLE INPUT CHANGE
   // ==========================================
 
@@ -86,7 +103,7 @@ export default function Signup() {
   };
 
   // ==========================================
-  // SLIDER
+  // PREVIOUS SLIDE
   // ==========================================
 
   const prevSlide = () => {
@@ -95,59 +112,54 @@ export default function Signup() {
     );
   };
 
+  // ==========================================
+  // NEXT SLIDE
+  // ==========================================
+
   const nextSlide = () => {
     setSlide((index) =>
       index === slides.length - 1 ? 0 : index + 1
     );
   };
 
-  // ==========================================
-  // SIGNUP API
-  // ==========================================
-
+  
   const handleSignup = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setError("");
+  setError("");
+  if (form.password !== form.confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
 
-    // Check password
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  try {
+    console.log("Signup clicked");
+    const res = await axios.post(
+      BASE_URL + "/signup",
+      {
+        username: form.username,
+        emailId: form.emailId,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    navigate("/body");
 
-    try {
-      console.log("Signup clicked");
+  } catch (err) {
+    console.log(
+      "Signup Error:",
+      err.response?.data || err.message
+    );
 
-      const res = await axios.post(
-        BASE_URL + "/signup",
-        {
-          username: form.username,
-          emailId: form.email,
-          password: form.password,
-          confirmPassword: form.confirmPassword,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-
-      console.log("Signup response:", res.data);
-
-      // After successful signup
-      navigate("/body");
-    } catch (err) {
-      console.log(
-        "Signup Error:",
-        err.response?.data || err.message
-      );
-
-      setError(
-        err.response?.data ||
-          "Unable to create your account."
-      );
-    }
-  };
+    setError(
+      err.response?.data ||
+        "Unable to create your account."
+    );
+  }
+};
 
   // ==========================================
   // RETURN
@@ -309,9 +321,9 @@ export default function Signup() {
 
               <input
                 type="email"
-                name="email"
+                name="emailId"
                 placeholder="Enter your email"
-                value={form.email}
+                value={form.emailId}
                 onChange={handleChange}
                 className="
                   w-full
@@ -686,7 +698,9 @@ export default function Signup() {
               overflow-hidden
             "
           >
+            {/* ================================= */}
             {/* IMAGE */}
+            {/* ================================= */}
 
             <img
               key={current.image}
@@ -703,7 +717,9 @@ export default function Signup() {
               "
             />
 
+            {/* ================================= */}
             {/* DARK OVERLAY */}
+            {/* ================================= */}
 
             <div
               className="
@@ -716,7 +732,9 @@ export default function Signup() {
               "
             />
 
+            {/* ================================= */}
             {/* IMAGE CONTENT */}
+            {/* ================================= */}
 
             <div
               className="
@@ -726,18 +744,6 @@ export default function Signup() {
                 right-8
               "
             >
-              <p
-                className="
-                  text-[#ff0033]
-                  uppercase
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  mb-3
-                "
-              >
-                Discover
-              </p>
 
               <h2
                 className="
@@ -763,7 +769,9 @@ export default function Signup() {
               </p>
             </div>
 
+            {/* ================================= */}
             {/* SLIDER CONTROLS */}
+            {/* ================================= */}
 
             <div
               className="

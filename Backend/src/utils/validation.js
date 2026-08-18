@@ -21,7 +21,7 @@ const validateSignupData = (req) => {
 };
 
 const validateEditData=(req)=>{
-    const allowedEdit=["username","profilePic","bio"];
+    const allowedEdit=["profilePic","bio"];
     const isAllowed=Object.keys(req.body).every((field)=>allowedEdit.includes(field));
     return isAllowed;
 };

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 import {
@@ -18,141 +18,141 @@ const slides = [
   {
     image:
       "https://i.pinimg.com/736x/c2/cd/12/c2cd123596debff14d550f47c8800c76.jpg",
-
     title: "Your next story starts here.",
-
-    description:
-      "Share your ideas, views with everyone.",
+    description: "Share your ideas, views with everyone.",
   },
-
   {
     image:
       "https://i.pinimg.com/736x/b2/ed/39/b2ed398d1e68a9ed6eb1192e81ca6461.jpg",
-
     title: "Sit back. Press play.",
-
     description:
       "Your favorite entertainment is always waiting for you.",
   },
-
   {
     image:
       "https://i.pinimg.com/736x/d0/94/33/d094330eb1900f292b7075167abb06d3.jpg",
-
     title: "Learn something new everyday.",
-
     description:
       "Explore new worlds and discover something worth watching.",
   },
-
   {
     image:
       "https://i.pinimg.com/736x/1c/16/f4/1c16f48dcaf4122b8ca068e412441d8a.jpg",
-
     title: "Your Next Story Starts Here",
-
     description:
       "Experience movies and entertainment like never before.",
   },
 ];
 
-
 export default function Login() {
-
   const [email, setEmail] = useState("");
-
   const [password, setPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
 
   const [slide, setSlide] = useState(0);
-
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   const current = slides[slide];
 
+  // =========================================
+  // AUTO IMAGE SLIDER
+  // =========================================
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlide((index) =>
+        index === slides.length - 1 ? 0 : index + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // =========================================
+  // LOGIN
+  // =========================================
 
   const handleLogin = async () => {
-  console.log("Login clicked");
+    console.log("Login clicked");
 
-  setError("");
+    setError("");
 
-  try {
-    const res = await axios.post(
-      BASE_URL + "/login",
-      {
-        emailId: email,
-        password: password,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+    try {
+      const res = await axios.post(
+        BASE_URL + "/login",
+        {
+          emailId: email,
+          password: password,
+        },
+        {
+          // IMPORTANT:
+          // Backend cookie/session will be stored by browser
+          withCredentials: true,
+        }
+      );
 
-    console.log("Response:", res.data);
+      console.log("Login response:", res.data);
 
-    // Get user data
-    const user = res.data.user || res.data;
+      // =========================================
+      // NO LOCAL STORAGE
+      // =========================================
+      //
+      // Don't store:
+      // localStorage.setItem("user", ...)
+      // localStorage.setItem("username", ...)
+      // localStorage.setItem("token", ...)
+      //
+      // User information will be fetched from
+      // backend/MongoDB whenever required.
+      // =========================================
 
-    // username is the first name
-    if (user.username) {
-      localStorage.setItem("username", user.username);
+      navigate("/body");
+
+    } catch (err) {
+      console.log(
+        "Login Error:",
+        err.response?.data || err.message
+      );
+
+      setError(
+        err?.response?.data ||
+          "Invalid email or password."
+      );
     }
+  };
 
-    // Save complete user data
-    localStorage.setItem(
-      "user",
-      JSON.stringify(user)
-    );
-
-    // Go to homepage
-    navigate("/body");
-
-  } catch (err) {
-    console.log(
-      "Error:",
-      err.response?.data || err.message
-    );
-
-    setError(
-      err?.response?.data ||
-        "Invalid email or password."
-    );
-  }
-};
+  // =========================================
+  // FORM SUBMIT
+  // =========================================
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
-
     handleLogin();
   };
 
+  // =========================================
+  // PREVIOUS SLIDE
+  // =========================================
 
   const prevSlide = () => {
-
     setSlide((index) =>
-      index === 0
-        ? slides.length - 1
-        : index - 1
+      index === 0 ? slides.length - 1 : index - 1
     );
   };
 
+  // =========================================
+  // NEXT SLIDE
+  // =========================================
 
   const nextSlide = () => {
-
     setSlide((index) =>
-      index === slides.length - 1
-        ? 0
-        : index + 1
+      index === slides.length - 1 ? 0 : index + 1
     );
   };
 
-
   return (
-
     <div
       className="
         min-h-screen
@@ -165,8 +165,6 @@ export default function Login() {
         py-8
       "
     >
-
-
       <div
         className="
           w-full
@@ -182,6 +180,9 @@ export default function Login() {
         "
       >
 
+        {/* ========================================= */}
+        {/* LEFT LOGIN SECTION */}
+        {/* ========================================= */}
 
         <div
           className="
@@ -196,10 +197,7 @@ export default function Login() {
           "
         >
 
-
-          {/* ===================================== */}
-          {/* SIMPLE TOP TEXT */}
-          {/* ===================================== */}
+          {/* TOP TEXT */}
 
           <div className="mb-10">
 
@@ -216,7 +214,6 @@ export default function Login() {
               Welcome back
             </p>
 
-
             <h1
               className="
                 text-4xl
@@ -226,7 +223,6 @@ export default function Login() {
             >
               Log in to continue.
             </h1>
-
 
             <p
               className="
@@ -241,20 +237,14 @@ export default function Login() {
 
           </div>
 
-
-          {/* ===================================== */}
           {/* FORM */}
-          {/* ===================================== */}
 
           <form
             onSubmit={handleSubmit}
             className="space-y-5"
           >
 
-
-            {/* ================================= */}
             {/* EMAIL */}
-            {/* ================================= */}
 
             <div>
 
@@ -268,7 +258,6 @@ export default function Login() {
               >
                 Email
               </label>
-
 
               <input
                 type="email"
@@ -299,10 +288,7 @@ export default function Login() {
 
             </div>
 
-
-            {/* ================================= */}
             {/* PASSWORD */}
-            {/* ================================= */}
 
             <div>
 
@@ -323,7 +309,6 @@ export default function Login() {
                   Password
                 </label>
 
-
                 <button
                   type="button"
                   className="
@@ -337,7 +322,6 @@ export default function Login() {
                 </button>
 
               </div>
-
 
               <div className="relative">
 
@@ -373,15 +357,10 @@ export default function Login() {
                   required
                 />
 
-
-                {/* EYE BUTTON */}
-
                 <button
                   type="button"
                   onClick={() =>
-                    setShowPassword(
-                      !showPassword
-                    )
+                    setShowPassword(!showPassword)
                   }
                   className="
                     absolute
@@ -393,26 +372,20 @@ export default function Login() {
                     transition
                   "
                 >
-
                   {showPassword ? (
                     <FaEyeSlash />
                   ) : (
                     <FaEye />
                   )}
-
                 </button>
 
               </div>
 
             </div>
 
-
-            {/* ================================= */}
             {/* ERROR */}
-            {/* ================================= */}
 
             {error && (
-
               <div
                 className="
                   bg-red-500/10
@@ -427,13 +400,9 @@ export default function Login() {
               >
                 {error}
               </div>
-
             )}
 
-
-            {/* ================================= */}
             {/* LOGIN BUTTON */}
-            {/* ================================= */}
 
             <button
               type="submit"
@@ -456,10 +425,7 @@ export default function Login() {
 
           </form>
 
-
-          {/* ===================================== */}
           {/* DIVIDER */}
-          {/* ===================================== */}
 
           <div
             className="
@@ -498,10 +464,7 @@ export default function Login() {
 
           </div>
 
-
-          {/* ===================================== */}
           {/* SOCIAL BUTTONS */}
-          {/* ===================================== */}
 
           <div
             className="
@@ -510,8 +473,6 @@ export default function Login() {
               gap-3
             "
           >
-
-            {/* GOOGLE */}
 
             <button
               type="button"
@@ -531,9 +492,6 @@ export default function Login() {
             >
               <FcGoogle className="text-xl" />
             </button>
-
-
-            {/* FACEBOOK */}
 
             <button
               type="button"
@@ -556,9 +514,6 @@ export default function Login() {
               />
             </button>
 
-
-            {/* APPLE */}
-
             <button
               type="button"
               className="
@@ -580,10 +535,7 @@ export default function Login() {
 
           </div>
 
-
-          {/* ===================================== */}
           {/* SIGN UP */}
-          {/* ===================================== */}
 
           <p
             className="
@@ -593,7 +545,6 @@ export default function Login() {
               mt-8
             "
           >
-
             Don't have an account?
 
             <Link
@@ -612,7 +563,6 @@ export default function Login() {
           </p>
 
         </div>
-
 
         {/* ========================================= */}
         {/* RIGHT CINEMATIC SECTION */}
@@ -636,10 +586,7 @@ export default function Login() {
             "
           >
 
-
-            {/* ================================= */}
             {/* IMAGE */}
-            {/* ================================= */}
 
             <img
               key={current.image}
@@ -656,10 +603,7 @@ export default function Login() {
               "
             />
 
-
-            {/* ================================= */}
-            {/* DARK OVERLAY */}
-            {/* ================================= */}
+            {/* OVERLAY */}
 
             <div
               className="
@@ -672,10 +616,7 @@ export default function Login() {
               "
             />
 
-
-            {/* ================================= */}
-            {/* FEATURED TEXT */}
-            {/* ================================= */}
+            {/* FEATURED */}
 
             <div
               className="
@@ -698,14 +639,12 @@ export default function Login() {
                   text-white
                 "
               >
+                Featured
               </span>
 
             </div>
 
-
-            {/* ================================= */}
             {/* IMAGE CONTENT */}
-            {/* ================================= */}
 
             <div
               className="
@@ -726,8 +665,8 @@ export default function Login() {
                   mb-3
                 "
               >
+                STREAM NOW
               </p>
-
 
               <h2
                 className="
@@ -740,7 +679,6 @@ export default function Login() {
               >
                 {current.title}
               </h2>
-
 
               <p
                 className="
@@ -755,10 +693,7 @@ export default function Login() {
 
             </div>
 
-
-            {/* ================================= */}
             {/* SLIDER CONTROLS */}
-            {/* ================================= */}
 
             <div
               className="
@@ -772,7 +707,6 @@ export default function Login() {
               "
             >
 
-
               {/* DOTS */}
 
               <div
@@ -784,8 +718,8 @@ export default function Login() {
               >
 
                 {slides.map((_, index) => (
-
                   <button
+                    type="button"
                     key={index}
                     onClick={() =>
                       setSlide(index)
@@ -802,22 +736,16 @@ export default function Login() {
                       }
                     `}
                   />
-
                 ))}
 
               </div>
 
-
               {/* ARROWS */}
 
-              <div
-                className="
-                  flex
-                  gap-2
-                "
-              >
+              <div className="flex gap-2">
 
                 <button
+                  type="button"
                   onClick={prevSlide}
                   className="
                     w-9
@@ -837,8 +765,8 @@ export default function Login() {
                   <FaArrowLeft className="text-xs" />
                 </button>
 
-
                 <button
+                  type="button"
                   onClick={nextSlide}
                   className="
                     w-9
@@ -867,7 +795,6 @@ export default function Login() {
         </div>
 
       </div>
-
     </div>
   );
 }

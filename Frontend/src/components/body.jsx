@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "../utils/constants";
+
+/* =========================================================
+   VIDEOS
+========================================================= */
 
 const videos = [
   {
@@ -111,7 +117,7 @@ const categories = [
 ];
 
 /* =========================================================
-   ICON COMPONENT
+   ICON
 ========================================================= */
 
 function Icon({ name, size = 21 }) {
@@ -346,66 +352,106 @@ export default function Body() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   /* =====================================================
-     AUTH STATE
+     USER STATE
   ===================================================== */
 
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!sessionStorage.getItem("loggedInUser")
-  );
-
-  const [username, setUsername] = useState(
-    sessionStorage.getItem("loggedInUser") || ""
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [photoPic, setPhotoPic] = useState("");
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   /* =====================================================
-     CHECK LOGIN STATE
+     DEFAULT PROFILE IMAGE
+  ===================================================== */
+
+  const defaultProfileImage =
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+  /* =====================================================
+     GET CURRENT LOGGED-IN USER
   ===================================================== */
 
   useEffect(() => {
-    const checkLogin = () => {
-      const storedUsername =
-        sessionStorage.getItem("loggedInUser");
+    const getUser = async () => {
+      try {
+        setLoadingUser(true);
 
-      setIsLoggedIn(!!storedUsername);
-      setUsername(storedUsername || "");
+        const res = await axios.get(
+          BASE_URL + "/profile/view",
+          {
+            withCredentials: true,
+          }
+        );
+
+        console.log("Current User:", res.data);
+
+        setUser(res.data);
+
+        setUsername(res.data.username || "");
+
+        /*
+          IMPORTANT:
+          Your EditProfile uses photoPic,
+          so Body also uses photoPic.
+        */
+
+        setPhotoPic(res.data.photoPic || "");
+
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.log(
+          "User not logged in:",
+          error.response?.data || error.message
+        );
+
+        setUser(null);
+        setUsername("");
+        setPhotoPic("");
+        setIsLoggedIn(false);
+      } finally {
+        setLoadingUser(false);
+      }
     };
 
-    checkLogin();
-
-    window.addEventListener("storage", checkLogin);
-
-    return () => {
-      window.removeEventListener(
-        "storage",
-        checkLogin
-      );
-    };
-  }, []);
+    getUser();
+  }, [location.pathname]);
 
   /* =====================================================
      LOGOUT
   ===================================================== */
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("loggedInUser");
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        BASE_URL + "/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
 
-    // Remove these if you use them
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+      setIsLoggedIn(false);
+      setUsername("");
+      setPhotoPic("");
+      setUser(null);
 
-    setIsLoggedIn(false);
-    setUsername("");
-
-    navigate("/");
+      navigate("/");
+    } catch (error) {
+      console.log(
+        "Logout Error:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   /* =====================================================
-     NAVIGATION
+     SIDEBAR NAVIGATION
   ===================================================== */
 
   const handleSidebarClick = (item) => {
     if (item === "Home") {
-      navigate("/");
+      navigate("/body");
     } else {
       console.log(`${item} selected`);
     }
@@ -422,6 +468,22 @@ export default function Body() {
     }
 
     console.log("Create clicked");
+  };
+
+  /* =====================================================
+     SEARCH
+  ===================================================== */
+
+  const handleSearch = () => {
+    console.log("Searching:", search);
+  };
+
+  /* =====================================================
+     PROFILE IMAGE ERROR
+  ===================================================== */
+
+  const handleImageError = (e) => {
+    e.currentTarget.src = defaultProfileImage;
   };
 
   return (
@@ -451,7 +513,6 @@ export default function Body() {
 
         .streamtube {
           min-height: 100vh;
-
           background:
             radial-gradient(
               circle at 60% 0%,
@@ -485,9 +546,7 @@ export default function Body() {
 
           overflow: hidden;
 
-          transition:
-            width 0.3s ease,
-            transform 0.3s ease;
+          transition: width 0.3s ease;
         }
 
         .logo-area {
@@ -499,8 +558,6 @@ export default function Body() {
           padding: 0 20px;
 
           margin-bottom: 12px;
-
-          flex-shrink: 0;
         }
 
         .menu-button {
@@ -534,8 +591,6 @@ export default function Body() {
           overflow-x: hidden;
 
           padding: 0 20px;
-
-          scroll-behavior: smooth;
 
           scrollbar-width: none;
         }
@@ -584,27 +639,14 @@ export default function Body() {
 
         .sidebar-item:hover {
           background: #151b21;
-
           transform: translateX(4px);
-
           color: #ffffff;
         }
 
         .sidebar-item.active {
           background: #171e25;
-
           color: #ffffff;
-
-          box-shadow:
-            inset 3px 0 0 #ff0018;
-        }
-
-        .sidebar-item svg {
-          flex-shrink: 0;
-
-          transition:
-            transform 0.2s ease,
-            color 0.2s ease;
+          box-shadow: inset 3px 0 0 #ff0018;
         }
 
         .sidebar-item:hover svg {
@@ -613,9 +655,7 @@ export default function Body() {
 
         .sidebar-title {
           color: #9aa2aa;
-
           font-size: 13px;
-
           padding: 2px 15px 9px;
         }
 
@@ -625,13 +665,10 @@ export default function Body() {
 
         .main {
           margin-left: 250px;
-
           min-height: 100vh;
-
           padding: 0 20px 50px;
 
-          transition:
-            margin-left 0.3s ease;
+          transition: margin-left 0.3s ease;
         }
 
         /* =====================================================
@@ -652,7 +689,6 @@ export default function Body() {
           flex: 1;
 
           display: flex;
-
           justify-content: center;
         }
 
@@ -670,10 +706,6 @@ export default function Body() {
           background: #090d12;
 
           overflow: hidden;
-
-          transition:
-            border-color 0.2s ease,
-            box-shadow 0.2s ease;
         }
 
         .search-box:focus-within {
@@ -719,8 +751,6 @@ export default function Body() {
           justify-content: center;
 
           cursor: pointer;
-
-          transition: background 0.2s ease;
         }
 
         .search-button:hover {
@@ -745,15 +775,10 @@ export default function Body() {
           margin-left: 10px;
 
           cursor: pointer;
-
-          transition:
-            transform 0.2s ease,
-            background 0.2s ease;
         }
 
         .mic-button:hover {
           transform: scale(1.06);
-
           background: #202830;
         }
 
@@ -763,9 +788,7 @@ export default function Body() {
 
         .top-actions {
           display: flex;
-
           align-items: center;
-
           gap: 10px;
         }
 
@@ -793,7 +816,8 @@ export default function Body() {
           transition:
             transform 0.2s ease,
             background 0.2s ease,
-            border-color 0.2s ease;
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
         }
 
         .create-button:hover,
@@ -805,9 +829,7 @@ export default function Body() {
 
         .create-button {
           background: #151b21;
-
           color: white;
-
           border: none;
         }
 
@@ -817,9 +839,7 @@ export default function Body() {
 
         .login-button {
           background: transparent;
-
           color: white;
-
           border: 1px solid #3b4249;
         }
 
@@ -829,11 +849,8 @@ export default function Body() {
 
         .signup-button {
           background: #ff0018;
-
           color: white;
-
           border: 1px solid #ff0018;
-
           font-weight: 500;
         }
 
@@ -842,6 +859,136 @@ export default function Body() {
 
           box-shadow:
             0 5px 20px rgba(255, 0, 24, 0.22);
+        }
+
+        /* =====================================================
+           USER BOX
+        ===================================================== */
+
+        .user-box {
+          height: 40px;
+
+          min-width: 145px;
+
+          padding: 0 13px 0 7px;
+
+          display: flex;
+
+          align-items: center;
+
+          gap: 9px;
+
+          border-radius: 12px;
+
+          border: 1px solid #333c45;
+
+          background:
+            linear-gradient(
+              135deg,
+              #151b21,
+              #0d1217
+            );
+
+          color: #ffffff;
+
+          box-shadow:
+            0 4px 15px rgba(0, 0, 0, 0.18);
+
+          cursor: pointer;
+
+          transition:
+            transform 0.2s ease,
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+        .user-box:hover {
+          transform: translateY(-2px);
+
+          border-color: #ff0018;
+
+          box-shadow:
+            0 6px 20px rgba(255, 0, 24, 0.12);
+        }
+
+        .user-avatar {
+          width: 29px;
+          height: 29px;
+
+          flex-shrink: 0;
+
+          border-radius: 50%;
+
+          display: flex;
+
+          align-items: center;
+          justify-content: center;
+
+          background:
+            linear-gradient(
+              135deg,
+              #ff0018,
+              #ff4d5b
+            );
+
+          color: white;
+
+          font-size: 13px;
+
+          font-weight: 700;
+
+          text-transform: uppercase;
+
+          overflow: hidden;
+        }
+
+        .user-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .user-info {
+          display: flex;
+
+          flex-direction: column;
+
+          justify-content: center;
+
+          min-width: 0;
+        }
+
+        .user-label {
+          font-size: 9px;
+
+          color: #8f99a2;
+
+          text-transform: uppercase;
+
+          letter-spacing: 0.7px;
+
+          line-height: 1.1;
+
+          margin-bottom: 2px;
+        }
+
+        .username-display {
+          color: #f3f5f6;
+
+          font-size: 13px;
+
+          font-weight: 600;
+
+          max-width: 90px;
+
+          overflow: hidden;
+
+          text-overflow: ellipsis;
+
+          white-space: nowrap;
+
+          line-height: 1.1;
         }
 
         .logout-button {
@@ -858,22 +1005,6 @@ export default function Body() {
           border-color: #ff0018;
 
           color: #ff6875;
-        }
-
-        .username-display {
-          color: #dce1e5;
-
-          font-size: 14px;
-
-          font-weight: 500;
-
-          max-width: 130px;
-
-          overflow: hidden;
-
-          text-overflow: ellipsis;
-
-          white-space: nowrap;
         }
 
         /* =====================================================
@@ -898,7 +1029,7 @@ export default function Body() {
               rgba(5, 8, 12, 0.12) 100%
             ),
             url("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=85")
-              center/cover;
+            center/cover;
 
           animation: heroAppear 0.8s ease both;
         }
@@ -945,21 +1076,6 @@ export default function Body() {
           padding: 44px 22px;
 
           width: 53%;
-
-          animation:
-            heroContent 0.8s ease 0.1s both;
-        }
-
-        @keyframes heroContent {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
         }
 
         .trending-label {
@@ -1027,10 +1143,6 @@ export default function Body() {
           cursor: pointer;
 
           font-size: 14px;
-
-          transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
         }
 
         .start-button {
@@ -1085,10 +1197,6 @@ export default function Body() {
           border-radius: 50%;
 
           background: #81878d;
-
-          transition:
-            transform 0.2s ease,
-            background 0.2s ease;
         }
 
         .dot.active {
@@ -1098,26 +1206,11 @@ export default function Body() {
         }
 
         /* =====================================================
-           SECTION
+           SECTIONS
         ===================================================== */
 
         .section {
           margin-top: 23px;
-
-          animation:
-            sectionAppear 0.7s ease both;
-        }
-
-        @keyframes sectionAppear {
-          from {
-            opacity: 0;
-            transform: translateY(15px);
-          }
-
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
 
         .section-header {
@@ -1154,22 +1247,12 @@ export default function Body() {
           font-size: 12px;
 
           cursor: pointer;
-
-          transition: color 0.2s ease;
-        }
-
-        .view-all:hover {
-          color: white;
         }
 
         .arrow {
           color: #e0e4e7;
 
           cursor: pointer;
-
-          transition:
-            transform 0.2s ease,
-            color 0.2s ease;
         }
 
         .arrow:hover {
@@ -1195,21 +1278,6 @@ export default function Body() {
           min-width: 0;
 
           cursor: pointer;
-
-          animation:
-            cardAppear 0.5s ease both;
-        }
-
-        @keyframes cardAppear {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
 
         .thumbnail {
@@ -1342,12 +1410,6 @@ export default function Body() {
           overflow: hidden;
 
           text-overflow: ellipsis;
-
-          transition: color 0.2s ease;
-        }
-
-        .video-card:hover .video-title {
-          color: #ffffff;
         }
 
         .channel {
@@ -1504,7 +1566,14 @@ export default function Body() {
             width: 65%;
           }
 
-          .username-display {
+          .user-box {
+            min-width: 40px;
+            width: 40px;
+            padding: 0;
+            justify-content: center;
+          }
+
+          .user-info {
             display: none;
           }
         }
@@ -1532,6 +1601,11 @@ export default function Body() {
           .logout-button {
             padding: 0 11px;
             font-size: 12px;
+          }
+
+          .user-box {
+            width: 40px;
+            min-width: 40px;
           }
 
           .hero {
@@ -1621,12 +1695,14 @@ export default function Body() {
           <aside className="sidebar">
 
             <div className="logo-area">
+
               <div
                 className="menu-button"
                 onClick={() => setSidebarOpen(false)}
               >
                 <Icon name="menu" size={23} />
               </div>
+
             </div>
 
             <div className="sidebar-scroll">
@@ -1638,7 +1714,8 @@ export default function Body() {
                   text="Home"
                   active={
                     location.pathname === "/" ||
-                    location.pathname === "/home"
+                    location.pathname === "/home" ||
+                    location.pathname === "/body"
                   }
                   onClick={() =>
                     handleSidebarClick("Home")
@@ -1781,15 +1858,13 @@ export default function Body() {
         )}
 
         {/* =====================================================
-            MAIN CONTENT
+            MAIN
         ===================================================== */}
 
         <main
           className="main"
           style={{
-            marginLeft: sidebarOpen
-              ? undefined
-              : "0px",
+            marginLeft: sidebarOpen ? undefined : "0px",
           }}
         >
 
@@ -1808,17 +1883,17 @@ export default function Body() {
                   onChange={(e) =>
                     setSearch(e.target.value)
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
                   placeholder="Search"
                 />
 
                 <button
                   className="search-button"
-                  onClick={() =>
-                    console.log(
-                      "Searching:",
-                      search
-                    )
-                  }
+                  onClick={handleSearch}
                 >
                   <Icon
                     name="search"
@@ -1854,12 +1929,37 @@ export default function Body() {
                 Create
               </button>
 
-
               {/* =================================================
-                  NOT LOGGED IN
+                  LOADING USER
               ================================================= */}
 
-              {!isLoggedIn && (
+              {loadingUser && (
+                <div className="user-box">
+
+                  <div className="user-avatar">
+                    U
+                  </div>
+
+                  <div className="user-info">
+
+                    <span className="user-label">
+                      Loading
+                    </span>
+
+                    <span className="username-display">
+                      ...
+                    </span>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* =================================================
+                  LOGGED OUT
+              ================================================= */}
+
+              {!loadingUser && !isLoggedIn && (
                 <>
                   <button
                     className="login-button"
@@ -1881,16 +1981,54 @@ export default function Body() {
                 </>
               )}
 
-
               {/* =================================================
                   LOGGED IN
               ================================================= */}
 
-              {isLoggedIn && (
+              {!loadingUser && isLoggedIn && (
                 <>
-                  <span className="username-display">
-                    {username}
-                  </span>
+                  <div
+                    className="user-box"
+                    onClick={() =>
+                      navigate("/profile")
+                    }
+                  >
+
+                    {/* PROFILE IMAGE */}
+
+                    <div className="user-avatar">
+
+                      {photoPic ? (
+                        <img
+                          src={photoPic}
+                          alt={username}
+                          onError={handleImageError}
+                        />
+                      ) : (
+                        username
+                          ? username
+                              .charAt(0)
+                              .toUpperCase()
+                          : "U"
+                      )}
+
+                    </div>
+
+                    {/* USERNAME */}
+
+                    <div className="user-info">
+
+                      <span className="user-label">
+                        Welcome
+                      </span>
+
+                      <span className="username-display">
+                        {username}
+                      </span>
+
+                    </div>
+
+                  </div>
 
                   <button
                     className="logout-button"
@@ -1965,9 +2103,7 @@ export default function Body() {
                   className="explore-button"
                   onClick={() =>
                     document
-                      .getElementById(
-                        "categories"
-                      )
+                      .getElementById("categories")
                       ?.scrollIntoView({
                         behavior: "smooth",
                       })
@@ -2120,7 +2256,6 @@ export default function Body() {
 
               {categories.map(
                 (category) => (
-
                   <div
                     key={category}
                     className={`category ${
@@ -2137,7 +2272,6 @@ export default function Body() {
                   >
                     {category}
                   </div>
-
                 )
               )}
 
